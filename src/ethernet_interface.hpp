@@ -364,12 +364,11 @@ class EthernetInterface : public Ifaces
   private:
     struct NCSITimeoutWatch
     {
-        NCSITimeoutWatch(const std::string& ifname, int file);
+        NCSITimeoutWatch(EthernetInterface& intf, int fd);
 
         void callback(sdeventplus::source::IO&, int, uint32_t);
 
-        const std::string ifname;
-        stdplus::ManagedFd fd;
+        EthernetInterface& intf;
         sdeventplus::source::IO io;
     };
     std::unique_ptr<NCSITimeoutWatch> ncsiTimeoutWatch;
@@ -393,6 +392,14 @@ class EthernetInterface : public Ifaces
      *  @returns true/false value if the address is static
      */
     bool originIsManuallyAssigned(IP::AddressOrigin origin);
+
+    int handleNCSITimeout();
+
+    std::filesystem::path ncsiTimeoutPath;
+    std::filesystem::path ncsiWatchDriver;
+    std::string ncsiWatchDeviceName;
+
+    friend struct NCSITimeoutWatch;
 };
 
 } // namespace network
